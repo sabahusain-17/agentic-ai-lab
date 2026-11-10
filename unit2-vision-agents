@@ -53,7 +53,7 @@ The course examples use GPT-4o, which is a paid API. Free hosted access wasn't a
 2. Go to **Runtime → Change runtime type → T4 GPU**.
 3. Run the cells in order. Skip the labeled failed attempts unless you want to see them.
 4. For the clean version, run `vlm_guest_check.py` in a Colab cell with the same GPU runtime.
-- [`vlm_guest_verifier_colab.ipynb`](vlm_guest_verifier_colab.ipynb): full notebook with all attempts, labeled
+[Open the VLM notebook](unit2-vision-agents/vlm_guest_verifier_colab.ipynb)
 
 ## Tech
 Python, PyTorch, Hugging Face Transformers, smolagents, Pillow, Google Colab
