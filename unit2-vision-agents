@@ -1,0 +1,58 @@
+# VLM Guest Verifier
+
+Alfred the butler needs to check whether a party guest is The Joker or Wonder Woman. This project tests whether a small vision-language model (VLM) can identify a character from images, running for free on a Google Colab T4 GPU.
+
+**Full working notebook (with labeled failed attempts):** [Open in Google Colab](YOUR_COLAB_LINK_HERE)
+
+**Model:** `HuggingFaceTB/SmolVLM-Instruct` (~2B parameters)
+
+## Files
+- `vlm_guest_verifier_colab.ipynb`: full notebook with all attempts, labeled
+- `vlm_guest_check.py`: clean script with the final working approach
+
+## What I tried
+
+1. **Agent approach (smolagents CodeAgent):** Failed. The small model never produced the code format the framework requires, and the input context grew every step (5k to 40k tokens).
+2. **Direct VLM call:** Works. One call with two images and one prompt, no agent loop.
+
+The course examples use GPT-4o, which is a paid API. Free hosted access wasn't available for the model I needed, so I switched to a free open model on Colab.
+
+## Problems I hit and how I fixed them
+
+| Problem | Fix |
+|---|---|
+| CUDA out of memory (tried to allocate 11GB) | Loaded the model in float16, lowered max tokens, shrank images to 512px |
+| Agent output never matched the required `<code>` format | Dropped CodeAgent and called the VLM directly |
+| Import error (`AutoModelForVision2Seq`) | Newer transformers renamed it to `AutoModelForImageTextToText` |
+| Output echoed the prompt | Decoded only the newly generated tokens |
+
+## Results
+
+| Test | Prompt | Result | Notes |
+|---|---|---|---|
+| 1 | Open question ("Describe the costume... Explain why.") | Described both images, no verdict | Vague prompt gave a vague answer |
+| 2 | "Answer with one word first: JOKER or WONDER WOMAN. Then explain your reason in one sentence." | "JOKER." | Correct verdict, but skipped the one-sentence reason |
+| 3 | Same as Test 2 on a new image | _to fill in_ | _to fill in_ |
+
+## Hallucinations found
+- In Test 1, the model said the Joker was "holding a glowing object." Nothing glowing is in the image.
+
+## Takeaways
+- Small VLMs are very sensitive to prompt wording. The same model gave a verdict with a short prompt and no verdict with a long one.
+- Output format instructions help but are not guaranteed to be followed.
+- A framework built for large models can break with small ones. Simplifying the pipeline was the right call.
+- Every answer needs checking, because hallucinations are common in small models.
+
+## Limitations
+- This is a demo using costume details to guess a fictional character. It is not face recognition of real people.
+- Tested on only two images. Results will vary with other images and prompts.
+- Requires a GPU runtime (Colab T4 or similar). Runs too slowly on a CPU-only machine.
+
+## How to run
+1. Open the [Colab notebook](vlm_guest_verifier_colab.ipynb).
+2. Go to **Runtime → Change runtime type → T4 GPU**.
+3. Run the cells in order. Skip the labeled failed attempts unless you want to see them.
+4. For the clean version, run `vlm_guest_check.py` in a Colab cell with the same GPU runtime.
+
+## Tech
+Python, PyTorch, Hugging Face Transformers, smolagents, Pillow, Google Colab
